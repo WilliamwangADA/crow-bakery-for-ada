@@ -26,7 +26,7 @@ scenes.title = () => {
   sc.append(el('div', 'game-title', '乌鸦面包店'));
   ['choco','apple','lemon','mochi'].forEach((id, i) => {
     const img = el('img', 'sprite bob'); img.src = S(id);
-    Object.assign(img.style, { width: '13vmin', height: '15vmin', bottom: '6vmin', left: `${18 + i * 17}%`, animationDelay: `${i * 0.3}s` });
+    Object.assign(img.style, { width: '15vmin', height: '17vmin', bottom: '19vmin', left: `${13 + i * 20}%`, animationDelay: `${i * 0.3}s` });
     sc.append(img);
   });
   const start = el('div', 'btn big-btn', '开门喽！');
