@@ -1,4 +1,4 @@
 .env.local
-*_raw.png
+*_tmp.png
 .DS_Store
 assets/qrcode_plain.png

@@ -1,0 +1,92 @@
+/* ==== 乌鸦面包店 · 互动绘本 ==== */
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent;
+  user-select: none; -webkit-user-select: none; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #2c1e12;
+  overscroll-behavior: none; -webkit-touch-callout: none; touch-action: manipulation;
+  font-family: "Yuanti SC", "PingFang SC", "Hiragino Sans GB", sans-serif; }
+
+#stage { position: fixed; inset: 0; overflow: hidden; background: #f7edd8; }
+/* 绘本版式：上面整幅插画，下面文字条，互不遮挡 */
+.page { position: absolute; inset: 0; cursor: pointer; display: flex; flex-direction: column; background: #efe0c2; }
+.art { position: relative; flex: 1 1 auto; overflow: hidden; min-height: 0; }
+.page.with-text .art { flex: 0 0 68%; }
+.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: kenburns 22s ease-out both; }
+@keyframes kenburns { 0% { transform: scale(1.06); } 100% { transform: scale(1.0); } }
+.vignette { position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(0,0,0,.10) 0%, transparent 22%, transparent 52%, rgba(40,22,8,.55) 100%); }
+
+/* 竖屏提示 */
+#orient-tip { display: none; position: fixed; inset: 0; z-index: 99; background: #f7edd8; color: #6b4a2b;
+  font-size: 7vw; text-align: center; align-items: center; justify-content: center; }
+@media (orientation: portrait) { #orient-tip { display: flex; } }
+
+/* ===== 旁白（画面下方文字条）===== */
+.narration { position: relative; flex: 1 1 auto; min-height: 0;
+  background: linear-gradient(#fffdf2, #f6e9cf); border-top: 0.7vmin solid #c9a05e;
+  padding: 2.6vmin 15vmin 2.6vmin 5vmin; display: flex; align-items: center;
+  box-shadow: 0 -0.6vmin 2.4vmin rgba(0,0,0,.22); animation: rise .45s ease-out both; }
+.narration p { font-size: 4.1vmin; line-height: 1.55; color: #4a2f14; letter-spacing: .03em; }
+@keyframes rise { 0% { opacity: 0; transform: translateY(2.4vmin); } 100% { opacity: 1; transform: none; } }
+
+.replay-btn { position: absolute; right: 3.4vmin; top: 50%; transform: translateY(-50%);
+  width: 11vmin; height: 11vmin; border-radius: 50%; background: #f0c46a; border: 0.5vmin solid #a9762c;
+  display: flex; align-items: center; justify-content: center; font-size: 5vmin;
+  box-shadow: 0 0.6vmin 0 #a9762c; }
+.replay-btn:active { transform: translateY(-50%) translateY(0.4vmin); box-shadow: none; }
+
+.tap-hint { position: absolute; right: 3vmin; bottom: 2vmin; font-size: 2.9vmin; color: #fff3d6;
+  text-shadow: 0 0.3vmin 0.8vmin rgba(0,0,0,.85); animation: blink 2.4s ease-in-out infinite; }
+@keyframes blink { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+
+/* ===== 小伙伴徽章 ===== */
+.companion-badge { position: absolute; top: 2.4vmin; right: 2.6vmin; display: flex; align-items: center; gap: 1.4vmin;
+  background: rgba(255,251,238,.92); border: 0.5vmin solid #c9a05e; border-radius: 9vmin;
+  padding: 1vmin 3vmin 1vmin 1vmin; box-shadow: 0 0.7vmin 2vmin rgba(0,0,0,.3); }
+.companion-badge img { width: 10vmin; height: 10vmin; object-fit: contain; }
+.companion-badge span { font-size: 3.4vmin; color: #5a3410; font-weight: bold; }
+
+/* ===== 返回 ===== */
+.back-btn { position: absolute; top: 2.4vmin; left: 2.6vmin; width: 11vmin; height: 11vmin; border-radius: 50%;
+  background: rgba(255,251,238,.9); border: 0.5vmin solid #c9a05e; color: #7a5220;
+  display: flex; align-items: center; justify-content: center; font-size: 5.4vmin;
+  box-shadow: 0 0.6vmin 1.6vmin rgba(0,0,0,.25); }
+.back-btn:active { transform: scale(.94); }
+
+/* ===== 选择 ===== */
+.choice-wrap { position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 4vmin;
+  background: rgba(38,22,8,.52); backdrop-filter: blur(2px); }
+.choice-wrap.pop { animation: fade .45s ease-out both; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+.choice-q { background: rgba(255,251,238,.96); border: 0.6vmin solid #c9a05e; border-radius: 3vmin;
+  padding: 2.6vmin 4.5vmin; font-size: 4.4vmin; color: #4a2f14; max-width: 86%; text-align: center;
+  box-shadow: 0 1vmin 2.6vmin rgba(0,0,0,.35); }
+
+.choice-row { display: flex; gap: 3.4vmin; flex-wrap: wrap; justify-content: center; }
+.choice-card { --accent: #d1913c;
+  width: 30vmin; min-height: 32vmin; background: linear-gradient(#fffdf4, #f7e8c8);
+  border: 0.7vmin solid var(--accent); border-radius: 4vmin;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.6vmin;
+  padding: 2.4vmin 1.6vmin; box-shadow: 0 1vmin 0 rgba(0,0,0,.18), 0 1.6vmin 3vmin rgba(0,0,0,.3);
+  animation: cardin .45s cubic-bezier(.2,1.3,.5,1) both; }
+@keyframes cardin { 0% { opacity: 0; transform: translateY(5vmin) scale(.9); } 100% { opacity: 1; transform: none; } }
+.choice-card:active { transform: translateY(0.7vmin) scale(.97); box-shadow: 0 0.3vmin 0 rgba(0,0,0,.18); }
+.choice-card img { width: 17vmin; height: 17vmin; object-fit: contain; }
+.choice-card .emo { font-size: 12vmin; line-height: 1; }
+.choice-card span { font-size: 3.6vmin; color: #5a3410; font-weight: bold; text-align: center; }
+
+/* ===== 封面 / 结尾 ===== */
+.title-veil { position: absolute; inset: 0; background: linear-gradient(rgba(30,16,4,.42), rgba(30,16,4,.62)); }
+.title-box { position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 2vmin; }
+.title-box h1 { font-size: 12vmin; color: #fff6de; letter-spacing: 1.4vmin;
+  text-shadow: 0 0.8vmin 0 #8a5a24, 0 2vmin 4vmin rgba(0,0,0,.6); }
+.title-box .sub { font-size: 4vmin; color: #ffe9b8; margin-bottom: 3vmin;
+  text-shadow: 0 0.4vmin 1.4vmin rgba(0,0,0,.7); }
+.big-btn { background: linear-gradient(#f0c46a, #d1913c); border: 0.6vmin solid #8a5a24;
+  border-radius: 4vmin; padding: 3vmin 7vmin; font-size: 5.4vmin; color: #4a2f14; font-weight: bold;
+  box-shadow: 0 1.1vmin 0 #8a5a24, 0 2vmin 4vmin rgba(0,0,0,.4); cursor: pointer;
+  animation: breathe 2.6s ease-in-out infinite; }
+.big-btn:active { transform: translateY(0.9vmin); box-shadow: 0 0.2vmin 0 #8a5a24; animation: none; }
+@keyframes breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.045); } }
