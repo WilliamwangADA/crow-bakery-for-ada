@@ -73,3 +73,20 @@
   .shot img { animation: none !important; transform: scale(1.05); }
   .mote { display: none; }
 }
+
+/* 轻点开始（iOS 必须有手势才有声音）*/
+.intro-gate { position: absolute; inset: 0; z-index: 5; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity .45s ease; }
+.intro-gate.gone { opacity: 0; pointer-events: none; }
+.gate-poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  filter: brightness(.55) saturate(.9); }
+.gate-inner { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2.4vmin;
+  animation: gateBreathe 2.4s ease-in-out infinite; }
+.gate-icon { width: 22vmin; height: 22vmin; border-radius: 50%;
+  background: linear-gradient(#f0c46a, #d1913c); border: 0.8vmin solid #8a5a24;
+  display: flex; align-items: center; justify-content: center; font-size: 10vmin;
+  box-shadow: 0 1.2vmin 0 #8a5a24, 0 2vmin 5vmin rgba(0,0,0,.55); }
+.gate-text { font-size: 4.4vmin; color: #fff6de; font-weight: bold; letter-spacing: .08em;
+  text-shadow: 0 0.5vmin 2vmin rgba(0,0,0,.9); }
+@keyframes gateBreathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.055); } }
