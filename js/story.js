@@ -250,7 +250,35 @@ function showEnd() {
   playVoice('the_end');
 }
 
-/* 调试：?node=n18 直接跳页（默认给个伙伴，避免 {C} 空着） */
+/* =========== iPad：首次触摸解锁音频 =========== */
+function unlockAudio() {
+  try {
+    const c = new (window.AudioContext || window.webkitAudioContext)();
+    if (c.state === 'suspended') c.resume();
+    const a = new Audio('assets/audio/the_end.mp3');
+    a.volume = 0; a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(() => {});
+  } catch {}
+  window.removeEventListener('touchstart', unlockAudio);
+  window.removeEventListener('pointerdown', unlockAudio);
+}
+window.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
+window.addEventListener('pointerdown', unlockAudio, { once: true });
+
+/* iPad Safari：屏蔽双指缩放和双击放大 */
+document.addEventListener('gesturestart', e => e.preventDefault());
+let _lastTap = 0;
+document.addEventListener('touchend', e => {
+  const now = Date.now();
+  if (now - _lastTap < 300) e.preventDefault();
+  _lastTap = now;
+}, { passive: false });
+
+/* =========== 启动 =========== */
 const _q = new URLSearchParams(location.search).get('node');
-if (_q && STORY[_q]) { companion = COMPANIONS[0]; go(_q); }
-else showTitle();
+if (_q && STORY[_q]) {                       // 调试：?node=n18 直接跳页
+  companion = COMPANIONS[0]; go(_q);
+} else if (new URLSearchParams(location.search).get('intro') === '0') {
+  showTitle();                               // ?intro=0 跳过片头
+} else {
+  Intro.play(stage, showTitle);              // 正常启动：先播片头
+}
