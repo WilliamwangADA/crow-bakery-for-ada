@@ -187,16 +187,25 @@ function showChoice(page, id, node) {
   wrap.append(el('div', 'choice-q', fill(ch.q)));
   const row = el('div', 'choice-row');
 
+  if (ch.grid) row.classList.add('grid');
+
   ch.options.forEach((opt, i) => {
     const card = el('div', 'choice-card');
     if (ch.pick === 'companion') {
       const c = COMPANIONS.find(x => x.id === opt.companion);
       card.innerHTML = `<img src="assets/companions/${c.id}.png" alt=""><span>${c.name}</span>`;
       card.style.setProperty('--accent', c.color);
+    } else if (opt.icon) {
+      // 面包图标；图还没生成时自动退回 emoji，不会显示裂图
+      card.classList.add('bread-card');
+      if (made.includes(opt.icon)) card.classList.add('done');
+      const img = el('img'); img.src = `assets/breads/${opt.icon}.png`; img.alt = '';
+      img.onerror = () => { img.replaceWith(el('div', 'emo', opt.emoji)); };
+      card.append(img, el('span', '', opt.label));
     } else {
       card.innerHTML = `<div class="emo">${opt.emoji}</div><span>${opt.label}</span>`;
     }
-    card.style.animationDelay = `${i * 0.09}s`;
+    card.style.animationDelay = `${Math.min(i, 12) * 0.045}s`;
     card.onclick = e => {
       e.stopPropagation();
       Sfx.pick(); stopVoice();

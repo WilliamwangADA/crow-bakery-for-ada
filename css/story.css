@@ -64,6 +64,25 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #2c1e12;
   box-shadow: 0 1vmin 2.6vmin rgba(0,0,0,.35); }
 
 .choice-row { display: flex; gap: 3.4vmin; flex-wrap: wrap; justify-content: center; }
+
+/* 20 个面包的网格：5 列 × 4 行，按屏幕高度定尺寸，保证一屏放得下 */
+.choice-row.grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.1vh;
+  width: 92vw; max-width: 1500px; }
+.choice-row.grid .choice-card { width: auto; height: 16.2vh; min-height: 0;
+  gap: 0.2vh; padding: 0.8vh 0.4vh; border-radius: 1.8vh; border-width: 0.35vh;
+  box-shadow: 0 0.5vh 0 rgba(0,0,0,.16), 0 0.9vh 1.8vh rgba(0,0,0,.26); }
+.choice-row.grid .choice-card img { width: auto; height: 9.6vh; }
+.choice-row.grid .choice-card .emo { font-size: 8vh; line-height: 9.6vh; height: 9.6vh; }
+.choice-row.grid .choice-card span { font-size: 2.1vh; }
+/* 网格模式下问题条更紧凑 */
+.choice-wrap:has(.grid) { gap: 1.6vh; }
+.choice-wrap:has(.grid) .choice-q { font-size: 3.2vh; padding: 1.4vh 3vh; border-radius: 2vh; }
+
+/* 面包卡片：已经做过的打个勾 */
+.bread-card { position: relative; }
+.bread-card.done::after { content: "✓"; position: absolute; top: 0.5vmin; right: 0.9vmin;
+  font-size: 3vmin; color: #4a9d4a; font-weight: bold; }
+.bread-card.done { opacity: .72; }
 .choice-card { --accent: #d1913c;
   width: 30vmin; min-height: 32vmin; background: linear-gradient(#fffdf4, #f7e8c8);
   border: 0.7vmin solid var(--accent); border-radius: 4vmin;

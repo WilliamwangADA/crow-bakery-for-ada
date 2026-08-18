@@ -399,26 +399,30 @@ const STORY = {
     text: '天黑了。从那天起呀，大树上的乌鸦面包店，成了森林里最有名的面包店。{C}依偎在爸爸妈妈身边，打了个小小的哈欠，甜甜地睡着了。晚安，Ada。' },
 };
 
-/* ===== 程序化展开 5 轮做面包 =====
-   rX        → 选一个形状做
-   mk_<s>_1  → 做好了，问「还想再做一个吗？」
-   rXb_<s>   → 再选一个（排除刚做过的）
-   mk_<s>_2  → 再做一个，然后进入下一段剧情
+/* ===== 程序化展开 5 轮做面包（每轮都可以从全部 20 种里挑）=====
+   <r>              → 从 20 种里选一个做
+   mk_<r>_<s>_1     → 做好了，问「还想再做一个吗？」
+   <r>b_<s>         → 再从剩下 19 种里选
+   mk_<r>_<t>_2     → 再做一个，然后进入下一段剧情
+   配音：所有轮次共用同一条 mk_<shape> 正文配音（tv 指定）
 */
+const ALL_SHAPES = Object.keys(BREADS);
+
 BREAD_ROUNDS.forEach(round => {
+  const opts = shapes => shapes.map(s => ({
+    label: BREADS[s].name, emoji: BREADS[s].emoji, icon: s, next: `mk_${round.id}_${s}_1`,
+  }));
+
   STORY[round.id] = {
     scene: 's11_meeting',
-    choice: {
-      q: round.q,
-      qv: `q_${round.id}`,
-      options: round.shapes.map(s => ({ label: BREADS[s].name, emoji: BREADS[s].emoji, next: `mk_${s}_1` })),
-    },
+    choice: { q: round.q, qv: `q_${round.id}`, grid: true, options: opts(ALL_SHAPES) },
   };
 
-  round.shapes.forEach(s => {
-    STORY[`mk_${s}_1`] = {
+  ALL_SHAPES.forEach(s => {
+    STORY[`mk_${round.id}_${s}_1`] = {
       scene: `b_${s}`,
       text: BREADS[s].make,
+      tv: `mk_${s}`,
       made: s,
       choice: {
         q: '做得真棒！还想再做一个吗？',
@@ -435,17 +439,22 @@ BREAD_ROUNDS.forEach(round => {
       choice: {
         q: '好呀！那再做一个什么形状的呢？',
         qv: 'q_more2',
-        options: round.shapes.filter(t => t !== s)
-          .map(t => ({ label: BREADS[t].name, emoji: BREADS[t].emoji, next: `mk_${t}_2` })),
+        grid: true,
+        options: ALL_SHAPES.filter(t => t !== s).map(t => ({
+          label: BREADS[t].name, emoji: BREADS[t].emoji, icon: t, next: `mk_${round.id}_${t}_2`,
+        })),
       },
     };
 
-    STORY[`mk_${s}_2`] = {
+    STORY[`mk_${round.id}_${s}_2`] = {
       scene: `b_${s}`,
       text: BREADS[s].make,
-      tv: `mk_${s}_1`,          // 复用同一条配音
+      tv: `mk_${s}`,
       made: s,
       next: round.next,
     };
   });
 });
+
+/* 每种面包的正文配音只生成一份：mk_<shape> */
+ALL_SHAPES.forEach(s => { STORY[`mk_${s}`] = { voiceOnly: true, text: BREADS[s].make }; });
