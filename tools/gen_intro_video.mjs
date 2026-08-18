@@ -33,7 +33,7 @@ const res = await fetch(`${BASE}/contents/generations/tasks`, {
   body: JSON.stringify({
     model: MODEL,
     content: [
-      { type: 'text', text: PROMPT + ' --resolution 1080p --duration 5 --ratio 16:9' },
+      { type: 'text', text: PROMPT + ' --resolution 1080p --duration 5' },
       { type: 'image_url', image_url: { url: toDataUrl(path.join(ROOT, 'assets/scenes/s01_tree.jpg')) } },
     ],
   }),

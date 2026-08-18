@@ -1,12 +1,12 @@
 /* =====================================================================
-   片头动画：多镜头蒙太奇 + 缓慢运镜 + 光斑/叶片 + 标题浮现
-   纯 CSS/JS，无视频文件，iPad 秒开、离线可放。
-   （Seedance 开通后可换成 <video>，把 playIntro 内部替换即可）
+   片头动画：Seedance 生成的真视频开场 + 插画蒙太奇 + 旁白 + 标题浮现
+   第一个镜头是 assets/video/intro.mp4（Seedance 2.5 图生视频，H.264 720p 约1MB）
+   视频加载失败会自动回落成静态插画运镜，片头照常播完。
    ===================================================================== */
 const Intro = (() => {
   // 镜头表：[插画, 运镜, 停留毫秒, 字幕, 旁白]
   const SHOTS = [
-    { img: 's01_tree',     move: 'push',       ms: 3800, cap: '在很远很远的森林里……',     v: 'intro_1' },
+    { img: 's01_tree',     move: 'push',       ms: 5000, cap: '在很远很远的森林里……',     v: 'intro_1', video: 'assets/video/intro.mp4' },
     { img: 's02_inside',   move: 'pan-right',  ms: 3400, cap: '有一家开在大树里的面包店',   v: 'intro_2' },
     { img: 's03_babies',   move: 'push-slow',  ms: 3400, cap: '四只小乌鸦出生啦',           v: 'intro_3' },
     { img: 's14_many',     move: 'pan-left',   ms: 3600, cap: '还有好多好多好玩的面包',     v: 'intro_4' },
@@ -117,6 +117,7 @@ const Intro = (() => {
     SHOTS.forEach(s => {
       new Image().src = `assets/scenes/${s.img}.jpg`;
       if (s.v) { const a = new Audio(); a.preload = 'auto'; a.src = `assets/audio/${s.v}.mp3`; }
+      if (s.video) { const v = document.createElement('video'); v.preload = 'auto'; v.src = s.video; }
     });
 
     // 飘落的小光点（面包屑/阳光尘埃）
@@ -149,11 +150,30 @@ const Intro = (() => {
       const s = SHOTS[i];
 
       const layer = document.createElement('div');
-      layer.className = `shot ${s.move}`;
-      const im = document.createElement('img');
-      im.src = `assets/scenes/${s.img}.jpg`;
-      im.decoding = 'async';
-      layer.appendChild(im);
+      layer.className = `shot ${s.video ? 'video-shot' : s.move}`;
+
+      if (s.video) {
+        const vd = document.createElement('video');
+        vd.src = s.video; vd.muted = true; vd.playsInline = true;
+        vd.setAttribute('playsinline', ''); vd.setAttribute('webkit-playsinline', '');
+        vd.autoplay = true; vd.preload = 'auto';
+        vd.poster = 'assets/video/intro_poster.jpg';
+        // 视频加载失败 → 回落成静态插画运镜，片头照常进行
+        vd.onerror = () => {
+          layer.className = `shot ${s.move} in`;
+          vd.remove();
+          const fb = document.createElement('img');
+          fb.src = `assets/scenes/${s.img}.jpg`;
+          layer.appendChild(fb);
+        };
+        layer.appendChild(vd);
+        vd.play().catch(() => {});
+      } else {
+        const im = document.createElement('img');
+        im.src = `assets/scenes/${s.img}.jpg`;
+        im.decoding = 'async';
+        layer.appendChild(im);
+      }
       shotBox.appendChild(layer);
       requestAnimationFrame(() => layer.classList.add('in'));
 

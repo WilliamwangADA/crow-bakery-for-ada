@@ -90,3 +90,6 @@
 .gate-text { font-size: 4.4vmin; color: #fff6de; font-weight: bold; letter-spacing: .08em;
   text-shadow: 0 0.5vmin 2vmin rgba(0,0,0,.9); }
 @keyframes gateBreathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.055); } }
+
+/* 视频镜头：和插画镜头一样铺满，不做 CSS 运镜（视频自带运镜）*/
+.shot.video-shot video { width: 100%; height: 100%; object-fit: cover; display: block; }
