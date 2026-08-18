@@ -5,9 +5,37 @@ const stage = document.getElementById('stage');
 const el = (t, c, h) => { const e = document.createElement(t); if (c) e.className = c; if (h != null) e.innerHTML = h; return e; };
 const SC = id => `assets/scenes/${id}.jpg`;
 
+/* 插画缺失时的临时替身（图片加载失败才启用；补齐原图后自动恢复，无需改代码） */
+const FALLBACK = {
+  s23a_show: 's22_fire_crows', s23b_smell: 's22_fire_crows', s23c_offer: 's22_fire_crows',
+  s24_laugh: 's16a_song', s25_storm: 's06_empty', s26a_rope: 's19_bend',
+  s26b_shelter: 's02_inside', s26c_rescue: 's14_many', s27_rainbow: 's01_tree',
+  s28_finale: 's16a_song', s29_night: 's09_owl',
+};
+function setScene(img, id) {
+  img.src = SC(id);
+  img.onerror = () => { img.onerror = null; img.src = SC(FALLBACK[id] || 's01_tree'); };
+}
+
 let companion = null;           // 当前选的小伙伴对象
 let currentAudio = null;
 let visited = [];               // 走过的节点，供"上一页"
+
+/* ---- 进度存档：睡前没听完，下次接着讲 ---- */
+const SAVE_KEY = 'crowStory.v2';
+function saveProgress(id) {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify({ id, companion: companion && companion.id, visited })); } catch {}
+}
+function loadProgress() {
+  try { return JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); } catch { return null; }
+}
+function clearProgress() { try { localStorage.removeItem(SAVE_KEY); } catch {} }
+
+/* ---- 预加载下一页插画，翻页不闪白 ---- */
+function preloadNext(node) {
+  const ids = node.choice ? node.choice.options.map(o => o.next) : (node.next ? [node.next] : []);
+  ids.forEach(nid => { const n = STORY[nid]; if (n && n.scene) new Image().src = SC(n.scene); });
+}
 
 /* ---- 配音 ---- */
 function playVoice(id) {
@@ -52,13 +80,26 @@ const voiceOf = (id, node) => (node.c && companion) ? `${id}_${companion.id}` : 
 function showTitle() {
   stage.innerHTML = '';
   const sc = el('div', 'page');
-  const bg = el('img', 'bg'); bg.src = SC('s01_forest');
+  const bg = el('img', 'bg'); setScene(bg, 's01_tree');
   const veil = el('div', 'title-veil');
   const box = el('div', 'title-box',
-    `<h1>乌鸦面包店</h1><p class="sub">一个香喷喷的森林故事</p>`);
+    `<h1>乌鸦面包店</h1><p class="sub">一个开在大树上的、香喷喷的森林故事</p>`);
   const btn = el('div', 'big-btn', '开始讲故事 🥐');
-  btn.onclick = () => { Sfx.start(); visited = []; go('n01'); };
+  btn.onclick = () => { Sfx.start(); clearProgress(); companion = null; visited = []; go('n01'); };
   box.append(btn);
+
+  // 上次没听完 → 接着讲
+  const save = loadProgress();
+  if (save && save.id && STORY[save.id] && save.id !== 'n01') {
+    const cont = el('div', 'small-btn', '接着上次讲 ▶');
+    cont.onclick = () => {
+      Sfx.start();
+      companion = COMPANIONS.find(c => c.id === save.companion) || null;
+      visited = Array.isArray(save.visited) ? save.visited.slice(0, -1) : [];
+      go(save.id);
+    };
+    box.append(cont);
+  }
   sc.append(bg, veil, box);
   stage.append(sc);
 }
@@ -68,11 +109,17 @@ function go(id) {
   const node = STORY[id];
   if (!node) return showTitle();
   visited.push(id);
+  saveProgress(id);
+  preloadNext(node);
   stage.innerHTML = '';
 
   const page = el('div', 'page' + (node.text ? ' with-text' : ''));
+  // 细进度条（大约进度，给爸妈心里有数）
+  const bar = el('div', 'progress'); const fillp = el('div', 'progress-fill');
+  fillp.style.width = Math.min(100, visited.length / 40 * 100) + '%';
+  bar.append(fillp); page.append(bar);
   const art = el('div', 'art');
-  const bg = el('img', 'bg'); bg.src = SC(node.scene);
+  const bg = el('img', 'bg'); setScene(bg, node.scene);
   art.append(bg, el('div', 'vignette'));
 
   // 小伙伴徽章
@@ -154,11 +201,11 @@ function showChoice(page, id, node) {
 function showEnd() {
   stage.innerHTML = '';
   const page = el('div', 'page');
-  const bg = el('img', 'bg'); bg.src = SC('s17_night');
+  const bg = el('img', 'bg'); setScene(bg, 's29_night');
   page.append(bg, el('div', 'title-veil'));
   const box = el('div', 'title-box', `<h1>故事讲完啦</h1><p class="sub">晚安，Ada 🌙</p>`);
   const again = el('div', 'big-btn', '再讲一遍 📖');
-  again.onclick = () => { Sfx.start(); companion = null; visited = []; go('n01'); };
+  again.onclick = () => { Sfx.start(); clearProgress(); companion = null; visited = []; go('n01'); };
   box.append(again);
   page.append(box);
   stage.append(page);
