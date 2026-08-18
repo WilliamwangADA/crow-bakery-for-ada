@@ -8,7 +8,7 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { generate } from './gen.mjs';
-import { CHAR_SHEET, FRIENDS_SHEET, SCENES } from './scenes.mjs';
+import { CHAR_SHEET, FRIENDS_SHEET, SCENES, BREAD_SCENES } from './scenes.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const P = (...a) => path.join(ROOT, ...a);
@@ -59,6 +59,14 @@ if (which === 'sheet' || which === 'all') {
 if (which === 'scenes' || which === 'all') {
   console.log('\n=== 分镜插画 ===');
   for (const [key, prompt] of Object.entries(SCENES)) {
+    await genScene(prompt, P('assets', 'scenes', `${key}.jpg`), key);
+    await sleep(1500);
+  }
+}
+
+if (which === 'breads' || which === 'all') {
+  console.log('\n=== 20 种造型面包 ===');
+  for (const [key, prompt] of Object.entries(BREAD_SCENES)) {
     await genScene(prompt, P('assets', 'scenes', `${key}.jpg`), key);
     await sleep(1500);
   }

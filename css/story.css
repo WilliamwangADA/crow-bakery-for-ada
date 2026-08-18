@@ -96,6 +96,16 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #2c1e12;
   box-shadow: 0 0.6vmin 0 #a9762c; cursor: pointer; }
 .small-btn:active { transform: translateY(0.5vmin); box-shadow: none; }
 
+/* 结尾：今天做过的面包 */
+.bread-shelf { margin: 1vmin 0 2vmin; max-width: 88vw; text-align: center; }
+.shelf-title { font-size: 3.6vmin; color: #ffe9b8; margin-bottom: 1.6vmin;
+  text-shadow: 0 0.4vmin 1.4vmin rgba(0,0,0,.8); }
+.shelf-row { display: flex; flex-wrap: wrap; gap: 1.4vmin; justify-content: center; }
+.shelf-item { background: rgba(255,251,238,.94); border: 0.4vmin solid #c9a05e; border-radius: 2.4vmin;
+  padding: 1vmin 2vmin; display: flex; align-items: center; gap: 0.8vmin; }
+.shelf-item .be { font-size: 4.4vmin; line-height: 1; }
+.shelf-item .bn { font-size: 2.9vmin; color: #5a3410; font-weight: bold; }
+
 /* 细进度条 */
 .progress { position: absolute; top: 0; left: 0; right: 0; height: 0.8vmin; background: rgba(90,52,16,.22); z-index: 5; }
 .progress-fill { height: 100%; background: linear-gradient(90deg, #f0c46a, #d1913c); transition: width .4s ease; }
